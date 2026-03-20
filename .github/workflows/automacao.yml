@@ -1,8 +1,8 @@
-name: Automacao Diario
+name: Automacao Mercado Livre
 
 on:
   schedule:
-    - cron: '0 9 * * *'
+    - cron: '0 10 * * *'  # todo dia 10h UTC (7h Brasil)
   workflow_dispatch:
 
 jobs:
@@ -10,19 +10,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Baixar repositorio
+      - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Instalar Python
+      - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: '3.10'
 
-      - name: Instalar dependencias
-        run: |
-          pip install -r requirements.txt
-           pip install PyDrive
+      - name: Instalar dependências
+        run: pip install -r requirements.txt
 
-      - name: Rodar automacao
+      - name: Criar service_account.json
         run: |
-          python automacao.py
+          echo '${{ secrets.GOOGLE_CREDENTIALS }}' > service_account.json
+
+      - name: Rodar automação
+        run: python automacao.py
