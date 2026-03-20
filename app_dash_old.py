@@ -58,35 +58,29 @@ if "logado" not in st.session_state:
 
 if not st.session_state.logado:
 
-    col1, col2, col3 = st.columns([1,1,1])
+    col1, col2, col3 = st.columns([2, 4, 2])
 
     with col2:
-        st.image("mercadolivre_logo.png", width=200)
+        st.image("mercadolivre_logo.png", width=220)
 
-    # 👇 ADICIONA ISSO AQUI
-    col_titulo = st.columns([2, 6])
-
-    with col_titulo[0]:
-        st.image("Logo ICOMM Icone Branco.png", width=100)
-
-    with col_titulo[1]:
         st.markdown("""
-        <h1 style='font-size:38px; margin-bottom:10px;'>
+        <h1 style='text-align:center; font-size:38px; margin-bottom:10px;'>
         Dashboard Mercado Livre
         </h1>
         """, unsafe_allow_html=True)
 
-    st.markdown("<br>", unsafe_allow_html=True)
-
-    st.markdown("<h3 style='text-align:center;'>🔐 Login</h3>", unsafe_allow_html=True)
-
-    with st.form("login_form"):
-        usuario = st.text_input("Usuário")
-        senha = st.text_input("Senha", type="password")
-
         st.markdown("<br>", unsafe_allow_html=True)
 
-        entrar = st.form_submit_button("Entrar", use_container_width=True)
+        st.markdown("<h3 style='text-align:center;'>🔐 Login</h3>", unsafe_allow_html=True)
+
+        with st.form("login_form"):
+
+            usuario = st.text_input("Usuário")
+            senha = st.text_input("Senha", type="password")
+
+            st.markdown("<br>", unsafe_allow_html=True)
+
+            entrar = st.form_submit_button("Entrar", use_container_width=True)
 
         if entrar:
             if usuario.strip() == "admin" and senha.strip() == "icommconsultoria":
@@ -94,11 +88,7 @@ if not st.session_state.logado:
                 st.rerun()
             else:
                 st.error("Login inválido")
-        
-
     st.stop()
-    
-
 
 # =========================
 # HEADER
@@ -155,16 +145,7 @@ if executar and df is not None:
     def formatar(valor):
         return f"R$ {valor:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
-    def card(titulo, valor, percentual=None):
-        percentual_html = ""
-
-        if percentual is not None:
-            percentual_html = f"""
-            <div style="color:#9aa4b2; font-size:12px; margin-top:5px;">
-                {percentual:.0f}% do faturamento
-            </div>
-            """
-
+    def card(titulo, valor):
         st.markdown(f"""
         <div style="
             background: linear-gradient(135deg, #1a1f2b, #2a2f45);
@@ -173,22 +154,7 @@ if executar and df is not None:
             box-shadow: 0 4px 20px rgba(0,0,0,0.3);
         ">
             <div style="color:#9aa4b2; font-size:12px;">{titulo}</div>
-            <div style="color:#a855f7; font-size:28px; font-weight:600;">
-                {valor}
-            </div>
-            {percentual_html}
-        </div>
-        """, unsafe_allow_html=True)
-        
-    def percentual_texto(valor):
-        st.markdown(f"""
-        <div style="
-            margin-top:-25px;
-            text-align:center;
-            color:#9aa4b2;
-            font-size:12px;
-        ">
-            {valor:.0f}% do faturamento
+            <div style="color:#a855f7; font-size:28px; font-weight:600;">{valor}</div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -196,8 +162,6 @@ if executar and df is not None:
     valor_liq = df['valor_liquido'].sum()
     frete = df['frete_regra_calculada'].sum()
     ads = df['ads_rateado'].sum()
-    perc_frete = (frete / valor_bruto) * 100 if valor_bruto != 0 else 0
-    perc_ads = (ads / valor_bruto) * 100 if valor_bruto != 0 else 0
 
     with col1:
         card("Faturamento", formatar(valor_bruto))
@@ -210,13 +174,10 @@ if executar and df is not None:
 
     with col4:
         card("Frete", formatar(frete))
-        percentual_texto(perc_frete)
-        
 
     with col5:
         card("Ads", formatar(ads))
-        percentual_texto(perc_ads)
-        
+
     st.markdown("<br>", unsafe_allow_html=True)
 
     st.markdown("### 🏆 SKUs mais vendidos")
