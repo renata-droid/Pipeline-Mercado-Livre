@@ -36,20 +36,36 @@ df.to_excel(arquivo, index=False)
 
 print(f"Arquivo salvo em: {arquivo}")
 
-from pydrive.auth import GoogleAuth
-from pydrive.drive import GoogleDrive
+from google.oauth2 import service_account
+from googleapiclient.discovery import build
+from googleapiclient.http import MediaFileUpload
 
-gauth = GoogleAuth()
-gauth.LocalWebserverAuth()
+SCOPES = ['https://www.googleapis.com/auth/drive']
 
-drive = GoogleDrive(gauth)
+SERVICE_ACCOUNT_FILE = 'service_account.json'
 
-file = drive.CreateFile({
-    'title': f'consolidado_{data_str}.xlsx',
-    'parents': [{'id': '1daZRFwCXWOJ4QHjP9k5X2DoEPiExXHdA'}]
-})
+credentials = service_account.Credentials.from_service_account_file(
+    SERVICE_ACCOUNT_FILE,
+    scopes=SCOPES
+)
 
-file.SetContentFile(arquivo)
-file.Upload()
+service = build('drive', 'v3', credentials=credentials)
+
+file_metadata = {
+    'name': f'consolidado_{data_str}.xlsx',
+    'parents': ['1XGcLukCI8uvQWG9T6aAdCYai5xghlI9d']
+}
+
+media = MediaFileUpload(
+    arquivo,
+    mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+)
+
+file = service.files().create(
+    body=file_metadata,
+    media_body=media,
+    fields='id',
+    supportsAllDrives=True
+).execute()
 
 print("Arquivo enviado para o Google Drive com sucesso!")
